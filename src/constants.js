@@ -35,7 +35,7 @@ export const titles = {
 export const icons = {
   'apple-maps': require('./images/apple-maps.png'),
   'google-maps': require('./images/google-maps.png'),
-  amap: require('./images/amaps.png'),
+  amap: require('./images/amap.png'),
   citymapper: require('./images/citymapper.png'),
   uber: require('./images/uber.png'),
   lyft: require('./images/lyft.png'),
