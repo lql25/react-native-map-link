@@ -25,7 +25,7 @@ import { askAppChoice, checkOptions } from './utils'
  *     appsWhiteList: array | undefined | null
  * }} options
  */
-export async function showLocation (options) {
+export async function showLocation(options) {
   checkOptions(options)
 
   let useSourceDestiny = false
@@ -33,7 +33,7 @@ export async function showLocation (options) {
   let sourceLng
   let sourceLatLng
 
-  if (('sourceLatitude' in options) && ('sourceLongitude' in options)) {
+  if ('sourceLatitude' in options && 'sourceLongitude' in options) {
     useSourceDestiny = true
     sourceLat = parseFloat(options.sourceLatitude)
     sourceLng = parseFloat(options.sourceLongitude)
@@ -46,10 +46,22 @@ export async function showLocation (options) {
   let title = options.title && options.title.length ? options.title : null
   let encodedTitle = encodeURIComponent(title)
   let app = options.app && options.app.length ? options.app : null
-  let dialogTitle = options.dialogTitle && options.dialogTitle.length ? options.dialogTitle : 'Open in Maps'
-  let dialogMessage = options.dialogMessage && options.dialogMessage.length ? options.dialogMessage : 'What app would you like to use?'
-  let cancelText = options.cancelText && options.cancelText.length ? options.cancelText : 'Cancel'
-  let appsWhiteList = options.appsWhiteList && options.appsWhiteList.length ? options.appsWhiteList : null
+  let dialogTitle =
+    options.dialogTitle && options.dialogTitle.length
+      ? options.dialogTitle
+      : 'Open in Maps'
+  let dialogMessage =
+    options.dialogMessage && options.dialogMessage.length
+      ? options.dialogMessage
+      : 'What app would you like to use?'
+  let cancelText =
+    options.cancelText && options.cancelText.length
+      ? options.cancelText
+      : 'Cancel'
+  let appsWhiteList =
+    options.appsWhiteList && options.appsWhiteList.length
+      ? options.appsWhiteList
+      : null
 
   if (!app) {
     app = await askAppChoice({
@@ -65,8 +77,12 @@ export async function showLocation (options) {
   switch (app) {
     case 'apple-maps':
       url = prefixes['apple-maps']
-      url = (useSourceDestiny) ? `${url}?saddr=${sourceLatLng}&daddr=${latlng}` : `${url}?ll=${latlng}`
-      url += `&q=${title ? `${encodedTitle}&address=${encodedTitle}` : 'Location'}`
+      url = useSourceDestiny
+        ? `${url}?saddr=${sourceLatLng}&daddr=${latlng}`
+        : `${url}?ll=${latlng}`
+      url += `&q=${
+        title ? `${encodedTitle}&address=${encodedTitle}` : 'Location'
+      }`
       break
     case 'google-maps':
       let useTitleForQuery = !options.googleForceLatLon && title
@@ -74,9 +90,19 @@ export async function showLocation (options) {
 
       url = prefixes['google-maps']
       url += `?q=${useTitleForQuery ? encodedTitle : latlng}`
-      url += (isIOS) ? '&api=1' : ''
-      url += (googlePlaceId) ? `&query_place_id=${googlePlaceId}` : ''
-      url += (useSourceDestiny) ? `&saddr=${sourceLatLng}&daddr=${latlng}` : `&ll=${latlng}`
+      url += isIOS ? '&api=1' : ''
+      url += googlePlaceId ? `&query_place_id=${googlePlaceId}` : ''
+      url += useSourceDestiny
+        ? `&saddr=${sourceLatLng}&daddr=${latlng}`
+        : `&ll=${latlng}`
+      break
+    case 'amap':
+      url = prefixes['amap']
+      if (isIOS) {
+        url += `path?sourceApplication=appname&dev=0&m=0&t=1&dlon=${lng}&dlat=${lat}&dname=${encodedTitle}`
+      } else {
+        url += `route?sourceApplication=appname&dev=0&m=0&t=1&dlon=${lng}&dlat=${lat}&dname=${encodedTitle}`
+      }
       break
     case 'citymapper':
       url = `${prefixes['citymapper']}directions?endcoord=${latlng}`
@@ -90,17 +116,23 @@ export async function showLocation (options) {
       }
       break
     case 'uber':
-      url = `${prefixes['uber']}?action=setPickup&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}`
+      url = `${
+        prefixes['uber']
+      }?action=setPickup&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}`
 
       if (title) {
         url += `&dropoff[nickname]=${encodedTitle}`
       }
 
-      url += (useSourceDestiny) ? `&pickup[latitude]=${sourceLat}&pickup[longitude]=${sourceLng}` : `&pickup=my_location`
+      url += useSourceDestiny
+        ? `&pickup[latitude]=${sourceLat}&pickup[longitude]=${sourceLng}`
+        : `&pickup=my_location`
 
       break
     case 'lyft':
-      url = `${prefixes['lyft']}ridetype?id=lyft&destination[latitude]=${lat}&destination[longitude]=${lng}`
+      url = `${
+        prefixes['lyft']
+      }ridetype?id=lyft&destination[latitude]=${lat}&destination[longitude]=${lng}`
 
       if (useSourceDestiny) {
         url += `&pickup[latitude]=${sourceLat}&pickup[longitude]=${sourceLng}`
@@ -118,7 +150,9 @@ export async function showLocation (options) {
       url = `${prefixes['waze']}?ll=${latlng}&navigate=yes`
       break
     case 'yandex':
-      url = `${prefixes['yandex']}build_route_on_map?lat_to=${lat}&lon_to=${lng}`
+      url = `${
+        prefixes['yandex']
+      }build_route_on_map?lat_to=${lat}&lon_to=${lng}`
 
       if (useSourceDestiny) {
         url += `&lat_from=${sourceLat}&lon_from=${sourceLng}`
